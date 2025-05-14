@@ -8,6 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
+import Swal from "sweetalert2";
 
 interface TableProps {
   data: {
@@ -55,6 +56,24 @@ const CustomTable: React.FC<TableProps> = ({
   onDelete,
   onEdit,
 }) => {
+  const handleDelete = (id: number) => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed && onDelete) {
+        onDelete(id);
+        Swal.fire("Eliminado", "El registro ha sido eliminado.", "success");
+      }
+    });
+  };
+
   return (
     <div className="table-container">
       <TableContainer component={Paper}>
@@ -92,7 +111,7 @@ const CustomTable: React.FC<TableProps> = ({
                       {onDelete && (
                         <Button
                           label="Eliminar"
-                          onClick={() => onDelete(row.id)}
+                          onClick={() => handleDelete(row.id)}
                           color="error"
                         />
                       )}

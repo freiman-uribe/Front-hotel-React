@@ -56,7 +56,9 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
   const formik = useFormik({
     initialValues: {
       ...initialValues,
-      acomodaciones: initialValues.acomodaciones.map((a: { id: number }) => a.id),
+      acomodaciones: initialValues.acomodaciones.map(
+        (a: { id: number }) => a.id
+      ),
     },
     enableReinitialize: true,
     validationSchema,
@@ -90,17 +92,16 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
         <form onSubmit={formik.handleSubmit}>
           <Input
             id="nombre"
-            label="Nombre"
+            label="Nombre*"
             type="text"
             value={formik.values.nombre}
             onChange={(value) => formik.setFieldValue("nombre", value)}
             placeholder="Nombre del tipo de habitación"
+            error={formik.touched.nombre && !!formik.errors.nombre}
+            helperText={formik.touched.nombre ? formik.errors.nombre : ""}
           />
-          {formik.touched.nombre && formik.errors.nombre && (
-            <span className="error-message">{formik.errors.nombre}</span>
-          )}
           <SelectAtom
-            label="Acomodaciones"
+            label="Acomodaciones*"
             options={accommodations.map((a: Accommodation) => ({
               value: a.id,
               label: a.nombre,
@@ -108,22 +109,19 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
             value={formik.values.acomodaciones}
             onChange={(value) => formik.setFieldValue("acomodaciones", value)}
             multiple
+            error={
+              formik.touched.acomodaciones && !!formik.errors.acomodaciones
+            }
+            helperText={
+              formik.touched.acomodaciones
+                ? Array.isArray(formik.errors.acomodaciones)
+                  ? formik.errors.acomodaciones.join(", ")
+                  : formik.errors.acomodaciones
+                : ""
+            }
           />
-          {formik.touched.acomodaciones && formik.errors.acomodaciones && (
-            <span className="error-message">
-              {typeof formik.errors.acomodaciones === "string"
-                ? formik.errors.acomodaciones
-                : Array.isArray(formik.errors.acomodaciones)
-                ? formik.errors.acomodaciones.join(", ")
-                : ""}
-            </span>
-          )}
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-            <Button
-              label="Cancelar"
-              onClick={handleCancel} // Llama a la función handleCancel
-              color="error"
-            />
+            <Button label="Cancelar" onClick={handleCancel} color="error" />
             <Button
               label="Enviar"
               onClick={formik.submitForm}

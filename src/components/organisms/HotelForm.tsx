@@ -37,9 +37,9 @@ const defaultInitialValues = {
 };
 
 interface HotelFormProps {
-  onSubmit: (values: any) => void;
+  onSubmit: (values: typeof defaultInitialValues) => void;
   initialValues?: typeof defaultInitialValues;
-  onCancel?: () => void; // Nueva prop para manejar la acción de cancelar
+  onCancel?: () => void;
 }
 
 const HotelForm: React.FC<HotelFormProps> = ({
@@ -58,8 +58,8 @@ const HotelForm: React.FC<HotelFormProps> = ({
   });
 
   const handleCancel = () => {
-    formik.resetForm(); // Resetea el formulario a los valores predeterminados
-    if (onCancel) onCancel(); // Llama a la función onCancel si está definida
+    formik.resetForm();
+    if (onCancel) onCancel();
   };
 
   return (
@@ -73,87 +73,84 @@ const HotelForm: React.FC<HotelFormProps> = ({
             <Grid size={{ xs: 12 }}>
               <Input
                 id="nombre"
-                label="Nombre"
+                label="Nombre*"
                 type="text"
                 value={formik.values.nombre}
                 onChange={(value) => formik.setFieldValue("nombre", value)}
                 placeholder="Nombre"
+                error={formik.touched.nombre && !!formik.errors.nombre}
+                helperText={formik.touched.nombre ? formik.errors.nombre : ""}
               />
-              {formik.touched.nombre && formik.errors.nombre && (
-                <span className="error-message">{formik.errors.nombre}</span>
-              )}
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <Input
                 id="direccion"
                 type="text"
-                label="Dirección"
+                label="Dirección*"
                 value={formik.values.direccion}
                 onChange={(value) => formik.setFieldValue("direccion", value)}
                 placeholder="Dirección"
+                error={formik.touched.direccion && !!formik.errors.direccion}
+                helperText={
+                  formik.touched.direccion ? formik.errors.direccion : ""
+                }
               />
-              {formik.touched.direccion && formik.errors.direccion && (
-                <span className="error-message">{formik.errors.direccion}</span>
-              )}
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <Input
                 id="ciudad"
                 type="text"
-                label="Ciudad"
+                label="Ciudad*"
                 value={formik.values.ciudad}
                 onChange={(value) => formik.setFieldValue("ciudad", value)}
                 placeholder="Ciudad"
+                error={formik.touched.ciudad && !!formik.errors.ciudad}
+                helperText={formik.touched.ciudad ? formik.errors.ciudad : ""}
               />
-              {formik.touched.ciudad && formik.errors.ciudad && (
-                <span className="error-message">{formik.errors.ciudad}</span>
-              )}
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <Input
                 id="nit"
                 type="number"
-                label="NIT"
+                label="NIT*"
                 value={formik.values.nit}
                 onChange={(value) => formik.setFieldValue("nit", value)}
                 placeholder="NIT"
+                error={formik.touched.nit && !!formik.errors.nit}
+                helperText={formik.touched.nit ? formik.errors.nit : ""}
               />
-              {formik.touched.nit && formik.errors.nit && (
-                <span className="error-message">{formik.errors.nit}</span>
-              )}
             </Grid>
 
             <Grid size={{ xs: 12, md: 6 }}>
               <Input
                 id="numero_de_habitaciones"
                 type="number"
-                label="Número de Habitaciones"
+                label="Número de Habitaciones*"
                 value={formik.values.numero_de_habitaciones}
                 onChange={(value) =>
                   formik.setFieldValue("numero_de_habitaciones", value)
                 }
                 placeholder="Número de habitaciones"
+                error={
+                  formik.touched.numero_de_habitaciones &&
+                  !!formik.errors.numero_de_habitaciones
+                }
+                helperText={
+                  formik.touched.numero_de_habitaciones
+                    ? formik.errors.numero_de_habitaciones
+                    : ""
+                }
               />
-              {formik.touched.numero_de_habitaciones &&
-                formik.errors.numero_de_habitaciones && (
-                  <span className="error-message">
-                    {formik.errors.numero_de_habitaciones}
-                  </span>
-                )}
             </Grid>
 
             <Grid size={{ xs: 12 }}>
               <Box
                 sx={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}
               >
-                <Button
-                  label="Cancelar"
-                  onClick={handleCancel} // Llama a la función handleCancel
-                  color="error"
-                />
+                <Button label="Cancelar" onClick={handleCancel} color="error" />
                 <Button
                   label={formik.isSubmitting ? "Enviando..." : "Enviar"}
                   onClick={formik.submitForm}

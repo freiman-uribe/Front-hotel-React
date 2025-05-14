@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Swal from "sweetalert2";
 import Axios from "../../config/axios";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
@@ -22,11 +23,6 @@ interface RoomType {
     };
   }[];
 }
-
-// interface Accommodation {
-//   id: number;
-//   nombre: string;
-// }
 
 interface EditFormProps {
   onSubmit: (values: {
@@ -49,7 +45,7 @@ const EditForm: React.FC<EditFormProps> = ({
   disabled = false,
   onCancel,
 }) => {
-  const { hotelId } = useParams();
+  const { hotelId } = useParams<{ hotelId: string }>();
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [accommodationOptions, setAccommodationOptions] = useState<
     { value: number; label: string }[]
@@ -62,7 +58,20 @@ const EditForm: React.FC<EditFormProps> = ({
       );
       setRoomTypes(data);
     } catch (error) {
-      console.error("Error al obtener los tipos de habitación:", error);
+      const err = error as { status?: number; message?: string };
+      if (err.status === 404) {
+        Swal.fire({
+          icon: "warning",
+          title: "No encontrado",
+          text: err.message || "No se encontraron tipos de habitación.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Ocurrió un error al cargar los tipos de habitación.",
+        });
+      }
     }
   };
 
@@ -121,21 +130,20 @@ const EditForm: React.FC<EditFormProps> = ({
       <div className="form-group">
         <Input
           id="cantidad"
-          label="Cantidad"
+          label="Cantidad*"
           type="text"
           value={formik.values.cantidad}
           onChange={(value) => formik.setFieldValue("cantidad", value)}
           placeholder="Cantidad"
           disabled={disabled}
+          error={formik.touched.cantidad && !!formik.errors.cantidad}
+          helperText={formik.touched.cantidad ? formik.errors.cantidad : ""}
         />
-        {formik.touched.cantidad && formik.errors.cantidad && (
-          <span className="error-message">{formik.errors.cantidad}</span>
-        )}
       </div>
 
       <div className="form-group">
         <SelectAtom
-          label="Tipo de Habitación"
+          label="Tipo de Habitación*"
           options={roomTypes.map((rt) => ({
             value: rt.id,
             label: rt.nombre,
@@ -148,26 +156,32 @@ const EditForm: React.FC<EditFormProps> = ({
             }
           }}
           disabled={disabled || roomTypes.length === 0}
+          error={
+            formik.touched.tipo_habitacion_id &&
+            !!formik.errors.tipo_habitacion_id
+          }
+          helperText={
+            formik.touched.tipo_habitacion_id
+              ? formik.errors.tipo_habitacion_id
+              : ""
+          }
         />
-        {formik.touched.tipo_habitacion_id &&
-          formik.errors.tipo_habitacion_id && (
-            <span className="error-message">
-              {formik.errors.tipo_habitacion_id}
-            </span>
-          )}
       </div>
 
       <div className="form-group">
         <SelectAtom
-          label="Acomodación"
+          label="Acomodación*"
           options={accommodationOptions}
           value={formik.values.acomodacion_id}
           onChange={(value) => formik.setFieldValue("acomodacion_id", value)}
           disabled={disabled || accommodationOptions.length === 0}
+          error={
+            formik.touched.acomodacion_id && !!formik.errors.acomodacion_id
+          }
+          helperText={
+            formik.touched.acomodacion_id ? formik.errors.acomodacion_id : ""
+          }
         />
-        {formik.touched.acomodacion_id && formik.errors.acomodacion_id && (
-          <span className="error-message">{formik.errors.acomodacion_id}</span>
-        )}
       </div>
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>

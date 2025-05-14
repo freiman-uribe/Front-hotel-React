@@ -9,6 +9,8 @@ interface InputProps {
   placeholder?: string;
   label?: string;
   disabled?: boolean;
+  error?: boolean;
+  helperText?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -19,6 +21,8 @@ const Input: React.FC<InputProps> = ({
   placeholder,
   label,
   disabled,
+  error = false,
+  helperText = "",
 }) => (
   <div className="input-container">
     <TextField
@@ -29,15 +33,17 @@ const Input: React.FC<InputProps> = ({
         onChange(type === "number" ? +e.target.value : e.target.value)
       }
       label={label}
+      placeholder={placeholder}
+      fullWidth
+      margin="normal"
+      disabled={disabled}
+      error={error}
+      helperText={helperText}
       slotProps={{
         inputLabel: {
           shrink: true,
         },
       }}
-      placeholder={placeholder}
-      fullWidth
-      margin="normal"
-      disabled={disabled}
     />
   </div>
 );

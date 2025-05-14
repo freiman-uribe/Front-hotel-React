@@ -9,6 +9,7 @@ import EditTable from "../organisms/EditTable";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import Alert from "@mui/material/Alert";
+import Swal from "sweetalert2";
 
 const TABLE_HEADERS = ["Cantidad", "Tipo", "Acomodación"];
 
@@ -68,14 +69,23 @@ const EditHotel: React.FC = () => {
   const [showAlert, setShowAlert] = useState(false);
 
   const fetchHotel = async () => {
+    let roomTypes: RoomType[] = [];
+    let hasError = false;
     try {
       const { data: hotelData } = await Axios.get<Hotel>(`/hoteles/${hotelId}`);
       const { data: habitaciones } = await Axios.get<Habitacion[]>(
         `/habitaciones/${hotelId}`
       );
-      const { data: roomTypes } = await Axios.get<RoomType[]>(
+      const { data } = await Axios.get<RoomType[]>(
         `/tipo-habitaciones/${hotelId}`
       );
+
+      if(data.length === 0) {
+        roomTypes = data;
+        hasError = false;
+      }
+      
+      hasError = true;
       setHotel(hotelData);
       setHabitaciones(habitaciones);
 
@@ -84,12 +94,27 @@ const EditHotel: React.FC = () => {
         totalHabitacionesCreadas >= hotelData.numero_de_habitaciones;
       setIsFormDisabled(isLimitReached);
       setShowAlert(isLimitReached);
-      if (roomTypes.length === 0) {
-        navigate(`/accommodations/${hotelId}`);
-        return;
-      }
     } catch (error) {
-      console.error("Error al obtener el hotel:", error);
+        if (!hasError) return;
+        const err = error as { status?: number; message?: string };
+        if (err.status === 404) {
+          Swal.fire({
+            icon: "warning",
+            title: "No encontrado",
+            text: err.message || "El recurso solicitado no existe.",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: err.message || "Ocurrió un error al cargar los datos.",
+          });
+        }
+    } finally {
+      console.log('🚀 ~ fetchHotel ~ roomTypes:', roomTypes)
+      if (!hasError && roomTypes.length === 0) {
+        navigate(`/accommodations/${hotelId}`);
+      }
     }
   };
 
@@ -119,7 +144,20 @@ const EditHotel: React.FC = () => {
       fetchHotel();
       setEditingHabitacion(null);
     } catch (error) {
-      console.error("Error al enviar los datos:", error);
+      const err = error as { status?: number; message?: string };
+      if (err.status === 404) {
+        Swal.fire({
+          icon: "warning",
+          title: "No encontrado",
+          text: err.message || "Ocurrió un error al cargar los datos.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Ocurrió un error al cargar los datos.",
+        });
+      }
     }
   };
 
@@ -137,7 +175,20 @@ const EditHotel: React.FC = () => {
       await Axios.delete(`/habitaciones/${hotelId}/eliminar/${id}`);
       fetchHotel();
     } catch (error) {
-      console.error("Error al eliminar la habitación:", error);
+      const err = error as { status?: number; message?: string };
+      if (err.status === 404) {
+        Swal.fire({
+          icon: "warning",
+          title: "No encontrado",
+          text: err.message || "El recurso solicitado no existe.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Ocurrió un error al eliminar los datos.",
+        });
+      }
     }
   };
 

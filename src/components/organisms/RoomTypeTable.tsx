@@ -8,6 +8,7 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
+import Swal from "sweetalert2";
 
 interface RoomTypeTableProps {
   data: {
@@ -43,6 +44,25 @@ const RoomTypeTable: React.FC<RoomTypeTableProps> = ({
   onEdit,
   onDelete,
 }) => {
+
+  const handleDelete = (id: number) => {
+      Swal.fire({
+        title: "¿Estás seguro?",
+        text: "No podrás revertir esta acción",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Sí, eliminar",
+        cancelButtonText: "Cancelar",
+      }).then((result) => {
+        if (result.isConfirmed && onDelete) {
+          onDelete(id);
+          Swal.fire("Eliminado", "El registro ha sido eliminado.", "success");
+        }
+      });
+    };
+  
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">
@@ -72,7 +92,7 @@ const RoomTypeTable: React.FC<RoomTypeTableProps> = ({
                   />
                   <Button
                     label="Eliminar"
-                    onClick={() => onDelete(row.id)}
+                    onClick={() => handleDelete(row.id)}
                     color="error"
                   />
                 </div>

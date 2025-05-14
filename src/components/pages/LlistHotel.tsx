@@ -3,6 +3,7 @@ import Axios from "../../config/axios";
 import HotelForm from "../organisms/HotelForm";
 import Table from "../organisms/Table";
 import Typography from "../atoms/Typography";
+import Swal from "sweetalert2";
 
 const columns = [
   "Nombre",
@@ -53,7 +54,20 @@ const ListHotel = () => {
       await Axios.delete(`/hoteles/eliminar/${hotelId}`);
       getHotels();
     } catch (error) {
-      console.error("Error al eliminar el hotel:", error);
+      const err = error as { status?: number; message?: string };
+      if (err.status === 404) {
+        Swal.fire({
+          icon: "warning",
+          title: "No encontrado",
+          text: err.message || "El recurso solicitado no existe.",
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Ocurrió un error al eliminar los datos.",
+        });
+      }
     }
   };
 
@@ -65,7 +79,7 @@ const ListHotel = () => {
         await Axios.post("/hoteles", values);
       }
       getHotels();
-      setEditingHotel(null); // Limpia el estado de edición después de guardar
+      setEditingHotel(null);
     } catch (error) {
       console.error("Error al enviar los datos:", error);
     }
@@ -73,11 +87,11 @@ const ListHotel = () => {
 
   const handleEdit = (id: number) => {
     const hotel = data.find((h) => h.id === id) || null;
-    setEditingHotel(hotel); // Establece el hotel en edición
+    setEditingHotel(hotel);
   };
 
   const handleCancelEdit = () => {
-    setEditingHotel(null); // Limpia el estado de edición
+    setEditingHotel(null);
   };
 
   useEffect(() => {
@@ -91,7 +105,12 @@ const ListHotel = () => {
           {editingHotel ? "Editar Hotel" : "Registrar Hotel"}
         </Typography>
         <HotelForm
-          onSubmit={handleFormSubmit}
+          onSubmit={(values) =>
+            handleFormSubmit({
+              ...values,
+              numero_de_habitaciones: parseInt(values.numero_de_habitaciones, 10),
+            })
+          }
           initialValues={
             editingHotel
               ? {
@@ -109,7 +128,7 @@ const ListHotel = () => {
                   numero_de_habitaciones: "0",
                 }
           }
-          onCancel={handleCancelEdit} // Maneja la acción de cancelar
+          onCancel={handleCancelEdit}
         />
       </div>
 
@@ -121,7 +140,7 @@ const ListHotel = () => {
           columns={columns}
           data={data}
           onDelete={deleteHotel}
-          onEdit={handleEdit} // Pasa la función para manejar la edición
+          onEdit={handleEdit}
         />
       ) : (
         <Typography variant="body1" color="gray">

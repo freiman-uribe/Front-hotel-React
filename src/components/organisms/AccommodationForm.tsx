@@ -59,15 +59,14 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({
         <form onSubmit={formik.handleSubmit}>
           <Input
             id="nombre"
-            label="Nombre"
+            label="Nombre*"
             type="text"
             value={formik.values.nombre}
             onChange={(value) => formik.setFieldValue("nombre", value)}
             placeholder="Nombre de la acomodación"
+            error={formik.touched.nombre && !!formik.errors.nombre}
+            helperText={formik.touched.nombre ? formik.errors.nombre : ""}
           />
-          {formik.touched.nombre && formik.errors.nombre && (
-            <span className="error-message">{formik.errors.nombre}</span>
-          )}
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
             <Button label="Cancelar" onClick={handleCancel} color="error" />
             <Button
