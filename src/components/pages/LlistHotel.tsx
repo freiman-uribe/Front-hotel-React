@@ -38,15 +38,17 @@ const ListHotel = () => {
 
     const deleteHotel = async (hotelId: number) => {
       try {
-        await Axios.delete(`/hoteles/${hotelId}`);
+        await Axios.delete(`/hoteles/eliminar/${hotelId}`);
         gethotel();
       } catch (error) {
         console.error("Error al eliminar el hotel:", error);
       }
     };
+
     const handleFormSubmit = async (values: HotelFormValues) => {
       try {
         await Axios.post("/hoteles", values);
+        gethotel();
       } catch (error) {
         console.error("Error al enviar los datos:", error);
       }
@@ -58,11 +60,15 @@ const ListHotel = () => {
   return (
     <div className="container">
       <div style={{ marginBottom: "20px" }}>
-        <Typography variant="h4">Registrar de hotel</Typography>
+        <Typography variant="h4" sx={{ marginBottom: 5, color: "#ffff" }}>
+          Registrar de hotel
+        </Typography>
         <HotelForm onSubmit={handleFormSubmit} />
       </div>
 
-      <Typography variant="h4">lista de hoteles</Typography>
+      <Typography variant="h4" sx={{ marginBottom: 5, color: "#ffff" }}>
+        lista de hoteles
+      </Typography>
       {data.length > 0 ? (
         <Table
           columns={columns}
@@ -71,7 +77,9 @@ const ListHotel = () => {
           onEdit={(id: number) => console.log(`Edit hotel with ID: ${id}`)}
         />
       ) : (
-        <Typography variant="body1" color="gray">No hay hoteles registrados</Typography>
+        <Typography variant="body1" color="gray">
+          No hay hoteles registrados
+        </Typography>
       )}
     </div>
   );

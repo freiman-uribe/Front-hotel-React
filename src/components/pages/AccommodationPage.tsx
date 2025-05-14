@@ -88,11 +88,17 @@ const AccommodationPage: React.FC = () => {
         <Typography variant="h5" sx={{ marginBottom: 5, color: "#ffff" }}>
           Habitaciones
         </Typography>
-        <AccommodationTable
-          data={accommodations}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        {accommodations.length > 0 ? (
+          <AccommodationTable
+            data={accommodations}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <Typography variant="body1" color="gray">
+            No hay acomodaciones registradas.
+          </Typography>
+        )}
       </div>
     </>
   );

@@ -108,7 +108,9 @@ const RoomTypePage: React.FC = () => {
             editingRoomType
               ? {
                   ...editingRoomType,
-                  acomodaciones: editingRoomType.acomodaciones.map((id) => ({ id })),
+                  acomodaciones: editingRoomType.acomodaciones.map((id) => ({
+                    id,
+                  })),
                 }
               : { nombre: "", acomodaciones: [] }
           }
@@ -118,18 +120,25 @@ const RoomTypePage: React.FC = () => {
         <Typography variant="h5" sx={{ marginBottom: 5, color: "#ffff" }}>
           Tipos de Habitaciones
         </Typography>
-        <RoomTypeTable
-          data={roomTypes.map((rt) => ({
-            id: rt.id,
-            nombre: rt.nombre,
-            acomodaciones: rt.acomodaciones.map((a) => ({
-              id: a.id,
-              nombre: a.nombre,
-            })),
-          }))}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+
+        {roomTypes.length > 0 ? (
+          <RoomTypeTable
+            data={roomTypes.map((rt) => ({
+              id: rt.id,
+              nombre: rt.nombre,
+              acomodaciones: rt.acomodaciones.map((a) => ({
+                id: a.id,
+                nombre: a.nombre,
+              })),
+            }))}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <Typography variant="body1" color="gray">
+            No hay tipos de habitaciones disponibles.
+          </Typography>
+        )}
       </div>
     </>
   );
