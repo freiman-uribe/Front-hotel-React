@@ -6,35 +6,46 @@ import AccommodationTable from "../organisms/AccommodationTable";
 import NavigationMenu from "../molecules/NavigationMenu"; // Adjust the path as needed
 import Typography from "../atoms/Typography";
 
+interface Accommodation {
+  id: number;
+  nombre: string;
+  hotel_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
 const AccommodationPage: React.FC = () => {
   const { hotelId } = useParams();
   const navigate = useNavigate();
-  const [accommodations, setAccommodations] = useState([]);
-  const [editingAccommodation, setEditingAccommodation] = useState<any>(null);
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [editingAccommodation, setEditingAccommodation] =
+    useState<Accommodation | null>(null);
 
   const fetchAccommodations = async () => {
     try {
-      const { data } = await Axios.get(`/acomodaciones/${hotelId}`);
+      const { data } = await Axios.get<Accommodation[]>(
+        `/acomodaciones/${hotelId}`
+      );
       setAccommodations(data);
     } catch (error) {
       console.error("Error al obtener las acomodaciones:", error);
     }
   };
 
-  const handleCreateOrUpdate = async (values: any) => {
+  const handleCreateOrUpdate = async (values: { nombre: string }) => {
     try {
       if (editingAccommodation) {
         await Axios.put(
           `/acomodaciones/${hotelId}/actualizar/${editingAccommodation.id}`,
-          values
+          { ...editingAccommodation, ...values }
         );
       } else {
-        await Axios.post(`/acomodaciones/${hotelId}`, values);
+        await Axios.post(`/acomodaciones/${hotelId}`, { nombre: values.nombre });
       }
 
       const response = await Axios.get(`/tipo-habitaciones/${hotelId}`);
       if (response.data.length === 0) {
-        navigate(`/room-types/${hotelId}`); // Redirige si no hay tipos de habitación
+        navigate(`/room-types/${hotelId}`);
       }
       fetchAccommodations();
       setEditingAccommodation(null);
@@ -44,12 +55,12 @@ const AccommodationPage: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    const accommodation = accommodations.find((a: any) => a.id === id);
+    const accommodation = accommodations.find((a) => a.id === id) || null;
     setEditingAccommodation(accommodation);
   };
 
   const handleCancelEdit = () => {
-    setEditingAccommodation(null); // Limpia el estado de edición
+    setEditingAccommodation(null);
   };
 
   const handleDelete = async (id: number) => {
@@ -72,8 +83,7 @@ const AccommodationPage: React.FC = () => {
         <AccommodationForm
           onSubmit={handleCreateOrUpdate}
           initialValues={editingAccommodation || { nombre: "" }}
-          isEditing={!!editingAccommodation}
-          onCancel={handleCancelEdit} // Pasa la función para manejar "Cancelar"
+          onCancel={handleCancelEdit}
         />
         <Typography variant="h5" sx={{ marginBottom: 5, color: "#ffff" }}>
           Habitaciones

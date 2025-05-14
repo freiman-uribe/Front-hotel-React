@@ -14,30 +14,76 @@ import Alert from "@mui/material/Alert";
 
 const TABLE_HEADERS = ["Cantidad", "Tipo", "Acomodación"];
 
+interface Accommodation {
+  id: number;
+  nombre: string;
+}
+
+interface RoomType {
+  id: number;
+  nombre: string;
+  hotel_id: number;
+  created_at: string;
+  updated_at: string;
+  acomodaciones: {
+    id: number;
+    nombre: string;
+    pivot: {
+      tipo_habitacion_id: number;
+      acomodacion_id: number;
+    };
+  }[];
+}
+
+interface Habitacion {
+  id: number;
+  cantidad: number;
+  tipo_habitacion_id: number;
+  hotel_id: number;
+  acomodacion_id: number;
+  created_at: string;
+  updated_at: string;
+  tipo_habitacion: RoomType;
+  acomodacion: Accommodation;
+}
+
+interface Hotel {
+  id: number;
+  nombre: string;
+  ciudad: string;
+  direccion: string;
+  nit: string;
+  numero_de_habitaciones: number;
+  created_at: string;
+  updated_at: string;
+}
+
 const EditHotel: React.FC = () => {
   const { hotelId } = useParams();
   const navigate = useNavigate();
-  const [hotel, setHotel] = useState<any>([]);
-  const [habitaciones, setHabitaciones] = useState<any>([]);
-  const [editingHabitacion, setEditingHabitacion] = useState<any>(null);
+  const [hotel, setHotel] = useState<Hotel | null>(null);
+  const [habitaciones, setHabitaciones] = useState<Habitacion[]>([]);
+  const [editingHabitacion, setEditingHabitacion] = useState<Habitacion | null>(
+    null
+  );
   const [isFormDisabled, setIsFormDisabled] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
   const fetchHotel = async () => {
     try {
-      const { data } = await Axios.get(`/hoteles/${hotelId}`);
-      const { data: habitaciones } = await Axios.get(
+      const { data: hotelData } = await Axios.get<Hotel>(`/hoteles/${hotelId}`);
+      const { data: habitaciones } = await Axios.get<Habitacion[]>(
         `/habitaciones/${hotelId}`
       );
-      const { data: roomTypes } = await Axios.get(
+      const { data: roomTypes } = await Axios.get<RoomType[]>(
         `/tipo-habitaciones/${hotelId}`
       );
-      setHotel(data);
+      setHotel(hotelData);
       setHabitaciones(habitaciones);
 
       const totalHabitacionesCreadas = habitaciones.length;
       const isLimitReached =
-        totalHabitacionesCreadas >= data.numero_de_habitaciones;
+        totalHabitacionesCreadas >= hotelData.numero_de_habitaciones;
       setIsFormDisabled(isLimitReached);
       setShowAlert(isLimitReached);
       if (roomTypes.length === 0) {
@@ -53,12 +99,16 @@ const EditHotel: React.FC = () => {
     fetchHotel();
   }, []);
 
-  const handleFormSubmit = async (values: any) => {
+  const handleFormSubmit = async (values: {
+    cantidad: string | number;
+    tipo_habitacion_id: string | number;
+    acomodacion_id: string | number;
+  }) => {
     try {
       const data = {
-        cantidad: values.cantidad,
-        tipo: values.tipo_habitacion_id,
-        acomodacion: values.acomodacion_id,
+        cantidad: Number(values.cantidad),
+        tipo: Number(values.tipo_habitacion_id),
+        acomodacion: Number(values.acomodacion_id),
       };
       if (editingHabitacion) {
         await Axios.put(
@@ -76,12 +126,12 @@ const EditHotel: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    const habitacion = habitaciones.find((h: any) => h.id === id);
+    const habitacion = habitaciones.find((h) => h.id === id) || null;
     setEditingHabitacion(habitacion);
   };
 
   const handleCancelEdit = () => {
-    setEditingHabitacion(null); // Limpia el estado de edición
+    setEditingHabitacion(null);
   };
 
   const deleteHabitacion = async (id: number) => {
@@ -147,9 +197,18 @@ const EditHotel: React.FC = () => {
                 <Grid size={{ xs: 12, md: 6 }}>
                   <EditForm
                     onSubmit={handleFormSubmit}
-                    initialValues={editingHabitacion || undefined}
+                    initialValues={
+                      editingHabitacion
+                        ? {
+                            cantidad: editingHabitacion.cantidad.toString(),
+                            tipo_habitacion_id:
+                              editingHabitacion.tipo_habitacion_id,
+                            acomodacion_id: editingHabitacion.acomodacion_id,
+                          }
+                        : undefined
+                    }
                     disabled={isFormDisabled}
-                    onCancel={handleCancelEdit} // Pasa la función para manejar "Cancelar"
+                    onCancel={handleCancelEdit}
                   />
                 </Grid>
               </Grid>

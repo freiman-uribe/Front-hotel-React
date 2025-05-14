@@ -6,22 +6,50 @@ import RoomTypeTable from "../organisms/RoomTypeTable";
 import NavigationMenu from "../molecules/NavigationMenu";
 import Typography from "../atoms/Typography";
 
+interface Accommodation {
+  id: number;
+  nombre: string;
+  pivot: {
+    tipo_habitacion_id: number;
+    acomodacion_id: number;
+  };
+}
+
+interface RoomType {
+  id: number;
+  nombre: string;
+  hotel_id: number;
+  created_at: string;
+  updated_at: string;
+  acomodaciones: Accommodation[];
+}
+
+interface RoomTypeValues {
+  id?: number;
+  nombre: string;
+  acomodaciones: number[];
+}
+
 const RoomTypePage: React.FC = () => {
-  const [roomTypes, setRoomTypes] = useState([]);
-  const [editingRoomType, setEditingRoomType] = useState<any>(null);
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+  const [editingRoomType, setEditingRoomType] = useState<RoomTypeValues | null>(
+    null
+  );
   const { hotelId } = useParams();
   const navigate = useNavigate();
 
   const fetchRoomTypes = async () => {
     try {
-      const { data } = await Axios.get(`/tipo-habitaciones/${hotelId}`);
+      const { data } = await Axios.get<RoomType[]>(
+        `/tipo-habitaciones/${hotelId}`
+      );
       setRoomTypes(data);
     } catch (error) {
       console.error("Error al obtener los tipos de habitación:", error);
     }
   };
 
-  const handleCreateOrUpdate = async (values: any) => {
+  const handleCreateOrUpdate = async (values: RoomTypeValues) => {
     try {
       if (editingRoomType) {
         await Axios.put(
@@ -43,12 +71,18 @@ const RoomTypePage: React.FC = () => {
   };
 
   const handleEdit = (id: number) => {
-    const roomType = roomTypes.find((rt: any) => rt.id === id);
-    setEditingRoomType(roomType);
+    const roomType = roomTypes.find((rt) => rt.id === id);
+    if (roomType) {
+      setEditingRoomType({
+        id: roomType.id,
+        nombre: roomType.nombre,
+        acomodaciones: roomType.acomodaciones.map((a) => a.id),
+      });
+    }
   };
 
   const handleCancelEdit = () => {
-    setEditingRoomType(null); // Limpia el estado de edición
+    setEditingRoomType(null);
   };
 
   const handleDelete = async (id: number) => {
@@ -70,15 +104,29 @@ const RoomTypePage: React.FC = () => {
       <div className="container">
         <RoomTypeForm
           onSubmit={handleCreateOrUpdate}
-          initialValues={editingRoomType || { nombre: "", acomodaciones: [] }}
+          initialValues={
+            editingRoomType
+              ? {
+                  ...editingRoomType,
+                  acomodaciones: editingRoomType.acomodaciones.map((id) => ({ id })),
+                }
+              : { nombre: "", acomodaciones: [] }
+          }
           isEditing={!!editingRoomType}
-          onCancel={handleCancelEdit} // Pasa la función para manejar "Cancelar"
+          onCancel={handleCancelEdit}
         />
         <Typography variant="h5" sx={{ marginBottom: 5, color: "#ffff" }}>
           Tipos de Habitaciones
         </Typography>
         <RoomTypeTable
-          data={roomTypes}
+          data={roomTypes.map((rt) => ({
+            id: rt.id,
+            nombre: rt.nombre,
+            acomodaciones: rt.acomodaciones.map((a) => ({
+              id: a.id,
+              nombre: a.nombre,
+            })),
+          }))}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

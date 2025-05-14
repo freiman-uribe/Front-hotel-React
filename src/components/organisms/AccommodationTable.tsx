@@ -10,7 +10,13 @@ import Paper from "@mui/material/Paper";
 import { styled } from "@mui/material/styles";
 
 interface AccommodationTableProps {
-  data: { id: number; nombre: string }[];
+  data: {
+    id: number;
+    nombre: string;
+    hotel_id: number;
+    created_at: string;
+    updated_at: string;
+  }[];
   onEdit: (id: number) => void;
   onDelete: (id: number) => void;
 }
@@ -39,7 +45,6 @@ const AccommodationTable: React.FC<AccommodationTableProps> = ({
   onEdit,
   onDelete,
 }) => {
-  
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 700 }} aria-label="customized table">

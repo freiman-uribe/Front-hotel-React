@@ -37,6 +37,9 @@ const SelectAtom: React.FC<SelectProps> = ({
               .join(", ")
           : options.find((o) => o.value === selected)?.label
       }
+      sx={{
+        textAlign: "left", // Alinea el texto seleccionado a la izquierda
+      }}
     >
       {options.map((option) => (
         <MenuItem key={option.value} value={option.value}>

@@ -10,11 +10,10 @@ import Typography from "../atoms/Typography";
 import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
-import { colors } from "@mui/material";
 
 interface RoomTypeFormProps {
-  onSubmit: (values: any) => void;
-  initialValues?: { nombre: string; acomodaciones: number[] };
+  onSubmit: (values: { nombre: string; acomodaciones: number[] }) => void;
+  initialValues?: { nombre: string; acomodaciones: { id: number }[] };
   isEditing?: boolean;
   onCancel?: () => void;
 }
@@ -26,7 +25,12 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
   onCancel,
 }) => {
   const { hotelId: id } = useParams();
-  const [accommodations, setAccommodations] = useState([]);
+  interface Accommodation {
+    id: number;
+    nombre: string;
+  }
+
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
 
   useEffect(() => {
     const fetchAccommodations = async () => {
@@ -52,19 +56,19 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
   const formik = useFormik({
     initialValues: {
       ...initialValues,
-      acomodaciones: initialValues.acomodaciones.map((a: any) => a.id),
+      acomodaciones: initialValues.acomodaciones.map((a: { id: number }) => a.id),
     },
     enableReinitialize: true,
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
-      await onSubmit(values); // Llama a la función onSubmit
-      resetForm(); // Resetea el formulario después de guardar
+      await onSubmit(values);
+      resetForm();
     },
   });
 
   const handleCancel = () => {
-    formik.resetForm(); // Resetea el formulario
-    if (onCancel) onCancel(); // Llama a la función onCancel si está definida
+    formik.resetForm();
+    if (onCancel) onCancel();
   };
 
   return (
@@ -97,7 +101,7 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
           )}
           <SelectAtom
             label="Acomodaciones"
-            options={accommodations.map((a: any) => ({
+            options={accommodations.map((a: Accommodation) => ({
               value: a.id,
               label: a.nombre,
             }))}
@@ -106,7 +110,13 @@ const RoomTypeForm: React.FC<RoomTypeFormProps> = ({
             multiple
           />
           {formik.touched.acomodaciones && formik.errors.acomodaciones && (
-            <span className="error-message">{formik.errors.acomodaciones}</span>
+            <span className="error-message">
+              {typeof formik.errors.acomodaciones === "string"
+                ? formik.errors.acomodaciones
+                : Array.isArray(formik.errors.acomodaciones)
+                ? formik.errors.acomodaciones.join(", ")
+                : ""}
+            </span>
           )}
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
             <Button

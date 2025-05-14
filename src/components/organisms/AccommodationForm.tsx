@@ -69,11 +69,7 @@ const AccommodationForm: React.FC<AccommodationFormProps> = ({
             <span className="error-message">{formik.errors.nombre}</span>
           )}
           <Box sx={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-            <Button
-              label="Cancelar"
-              onClick={handleCancel}
-              color="error"
-            />
+            <Button label="Cancelar" onClick={handleCancel} color="error" />
             <Button
               label="Enviar"
               onClick={formik.submitForm}

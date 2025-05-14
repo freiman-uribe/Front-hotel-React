@@ -15,95 +15,66 @@ const columns = [
   "Acciones",
 ];
 
+interface HotelFormValues {
+  nombre: string;
+  direccion: string;
+  ciudad: string;
+  nit: string;
+  numeroHabitaciones: number;
+}
+
 const ListHotel = () => {
-  const [data, setData] = useState([]);
-  const [editingHotel, setEditingHotel] = useState<any>(null); // Estado para manejar la edición
 
-  const gethotel = async () => {
-    try {
-      const response = await Axios.get("/hoteles");
-      setData(response.data);
-    } catch (error) {
-      console.error("Error:", error);
-    }
-  };
+    const [data, setData] = useState([]);
 
-  const handleFormSubmit = async (values: any) => {
-    try {
-      if (editingHotel) {
-        await Axios.put(`/hoteles/actualizar/${editingHotel.id}`, values);
-      } else {
-        await Axios.post("/hoteles", values);
+    const gethotel = async () => {
+      try {
+        const response = await Axios.get("/hoteles");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error:", error);
       }
-      gethotel();
-      setEditingHotel(null);
-    } catch (error) {
-      console.error("Error al enviar los datos:", error);
-    }
-  };
+    };
 
-  const handleEdit = (id: number) => {
-    const hotel = data.find((h: any) => h.id === id);
-    setEditingHotel(hotel);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingHotel(null);
-  };
-
-  const deleteHotel = async (hotelId: number) => {
-    try {
-      await Axios.delete(`/hoteles/eliminar/${hotelId}`);
-      gethotel();
-    } catch (error) {
-      console.error("Error al eliminar el hotel:", error);
-    }
-  };
-
-  useEffect(() => {
-    gethotel();
-  }, []);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(data.length / 10);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+    const deleteHotel = async (hotelId: number) => {
+      try {
+        await Axios.delete(`/hoteles/${hotelId}`);
+        gethotel();
+      } catch (error) {
+        console.error("Error al eliminar el hotel:", error);
+      }
+    };
+    const handleFormSubmit = async (values: HotelFormValues) => {
+      try {
+        await Axios.post("/hoteles", values);
+      } catch (error) {
+        console.error("Error al enviar los datos:", error);
+      }
+    };
+      useEffect(() => {
+        gethotel();
+      }, []);
 
   return (
     <div className="container">
       <div style={{ marginBottom: "20px" }}>
-        <Typography variant="h4" sx={{ marginBottom: 5, color: "#ffff" }}>
-          {editingHotel ? "Editar Hotel" : "Registrar Hotel"}
-        </Typography>
-        <HotelForm
-          onSubmit={handleFormSubmit}
-          initialValues={editingHotel || undefined} // Pasa los valores iniciales si está en edición
-          onCancel={handleCancelEdit} // Maneja la acción de cancelar
-        />
+        <Typography variant="h4">Registrar de hotel</Typography>
+        <HotelForm onSubmit={handleFormSubmit} />
       </div>
 
-      <Typography variant="h4" sx={{ marginBottom: 5, color: "#ffff" }}>
-        Lista de hoteles
-      </Typography>
+      <Typography variant="h4">lista de hoteles</Typography>
       {data.length > 0 ? (
         <Table
           columns={columns}
           data={data}
           onDelete={deleteHotel}
-          onEdit={handleEdit} // Pasa la función de edición
-          onPageChange={handlePageChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
+          onEdit={(id: number) => console.log(`Edit hotel with ID: ${id}`)}
         />
       ) : (
-        <Typography variant="body1" color="gray">
-          No hay hoteles registrados
-        </Typography>
+        <Typography variant="body1" color="gray">No hay hoteles registrados</Typography>
       )}
     </div>
   );
-};
-
+}
 export default ListHotel;
+

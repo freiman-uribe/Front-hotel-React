@@ -7,6 +7,27 @@ import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import SelectAtom from "../atoms/Select";
 
+interface RoomType {
+  id: number;
+  nombre: string;
+  hotel_id: number;
+  created_at: string;
+  updated_at: string;
+  acomodaciones: {
+    id: number;
+    nombre: string;
+    pivot: {
+      tipo_habitacion_id: number;
+      acomodacion_id: number;
+    };
+  }[];
+}
+
+// interface Accommodation {
+//   id: number;
+//   nombre: string;
+// }
+
 interface EditFormProps {
   onSubmit: (values: {
     cantidad: string;
@@ -29,12 +50,16 @@ const EditForm: React.FC<EditFormProps> = ({
   onCancel,
 }) => {
   const { hotelId } = useParams();
-  const [roomTypes, setRoomTypes] = useState([]);
-  const [accommodationOptions, setAccommodationOptions] = useState([]);
+  const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+  const [accommodationOptions, setAccommodationOptions] = useState<
+    { value: number; label: string }[]
+  >([]);
 
   const fetchRoomTypes = async () => {
     try {
-      const { data } = await Axios.get(`/tipo-habitaciones/${hotelId}`);
+      const { data } = await Axios.get<RoomType[]>(
+        `/tipo-habitaciones/${hotelId}`
+      );
       setRoomTypes(data);
     } catch (error) {
       console.error("Error al obtener los tipos de habitación:", error);
@@ -47,11 +72,11 @@ const EditForm: React.FC<EditFormProps> = ({
 
   const handleRoomTypeChange = (selectedRoomTypeId: string | number) => {
     const selectedRoomType = roomTypes.find(
-      (roomType: any) => roomType.id === selectedRoomTypeId
+      (roomType) => roomType.id === selectedRoomTypeId
     );
     if (selectedRoomType) {
       const accommodations = selectedRoomType.acomodaciones.map(
-        (acomodacion: any) => ({
+        (acomodacion) => ({
           value: acomodacion.id,
           label: acomodacion.nombre,
         })
@@ -111,14 +136,16 @@ const EditForm: React.FC<EditFormProps> = ({
       <div className="form-group">
         <SelectAtom
           label="Tipo de Habitación"
-          options={roomTypes.map((rt: any) => ({
+          options={roomTypes.map((rt) => ({
             value: rt.id,
             label: rt.nombre,
           }))}
           value={formik.values.tipo_habitacion_id}
           onChange={(value) => {
             formik.setFieldValue("tipo_habitacion_id", value);
-            handleRoomTypeChange(value);
+            if (typeof value === "string" || typeof value === "number") {
+              handleRoomTypeChange(value);
+            }
           }}
           disabled={disabled || roomTypes.length === 0}
         />
@@ -144,11 +171,7 @@ const EditForm: React.FC<EditFormProps> = ({
       </div>
 
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-        <Button
-          label="Cancelar"
-          onClick={handleCancel} // Llama a la función handleCancel
-          color="error"
-        />
+        <Button label="Cancelar" onClick={handleCancel} color="error" />
         <Button
           label="Guardar"
           onClick={formik.submitForm}
