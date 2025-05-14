@@ -8,8 +8,6 @@ import Typography from "../atoms/Typography";
 import EditTable from "../organisms/EditTable";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import IconButton from "@mui/material/IconButton";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Alert from "@mui/material/Alert";
 
 const TABLE_HEADERS = ["Cantidad", "Tipo", "Acomodación"];
@@ -147,18 +145,6 @@ const EditHotel: React.FC = () => {
     <>
       <NavigationMenu hotelId={hotelId} />
       <div className="container">
-        <IconButton
-          onClick={() => navigate("/")}
-          sx={{
-            position: "absolute",
-            top: 100,
-            left: 16,
-            color: "#ffff",
-            backgroundColor: "#000000ab",
-          }}
-        >
-          <ArrowBackIcon />
-        </IconButton>
         {showAlert && (
           <Alert severity="warning" sx={{ marginBottom: 2 }}>
             Ya se ha alcanzado el número máximo de habitaciones permitidas para
